@@ -1,0 +1,37 @@
+service: s3-cp-lambda
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-east-1
+  iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+    - "s3:PutBucketNotification"
+    - "s3:ListBucket"
+    Resource: "arn:aws:s3:::${opt:sourcebucket}"
+  - Effect: "Allow"
+    Action:
+    - "s3:GetObject"
+    Resource: "arn:aws:s3:::${opt:sourcebucket}/*"
+  - Effect: "Allow"
+    Action:
+    - "s3:PutObject"
+    Resource: "*"
+
+plugins:
+ - serverless-plugin-existing-s3
+
+functions:
+  s3-cp:
+    handler: s3-cp.handler
+    environment:
+      DEST_BUCKETS: ${opt:destbuckets}
+    events:
+    - existingS3:
+        bucket: ${opt:sourcebucket}
+        events:
+        - s3:ObjectCreated:*
+        rules:
+        - prefix: "${opt:prefix}"
+    
+
