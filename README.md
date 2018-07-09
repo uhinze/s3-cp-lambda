@@ -25,7 +25,9 @@ sls deploy $args
 sls s3deploy $args
 ```
 
-## Example bucket policy for destination bucket in another account (cross-account copying)
+## Grant cross-account permissions if destination bucket is in another account
+
+Either you take assets/cross-account-dest-bucket.yml or you manually apply the following bucket policy:
 
 ```
 {
