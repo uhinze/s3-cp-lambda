@@ -9,7 +9,7 @@ Copying is automatically triggered using the S3-Lambda integration. Currently on
 * [Serverless](https://serverless.com/): `npm i -g serverless`
 * AWS credentials
 * Source bucket (needs to be in same account as lambda function)
-* One or more destination buckets (if not in the same account, you need to manually grant S3:PutObject permissions to the lambda function, after the function has been created)
+* One or more destination buckets (if not in the same account, you need to grant cross-account permissions, see bottom)
 
 ## Set up
 
@@ -18,17 +18,28 @@ Install plugin:
 npm install
 ```
 
-Set arguments:
+Set up function and S3 trigger:
 ```
 args="--aws-profile <PROFILE> --region <REGION> --sourcebucket <SOURCEBUCKET NAME> --prefix <SOURCEBUCKET_PREFIX> --destbuckets <DESTINATIONBUCKET1>;<DESTINATIONBUCKET2>"
-```
-
-Set up function:
-```
 sls deploy $args
+sls s3deploy $args
 ```
 
-Set up S3 trigger:
+## Example bucket policy for destination bucket in another account (cross-account copying)
+
 ```
-sls s3deploy $args
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowS3CpLambdaAccess",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::<SOURCEACCOUNT_ID>:root"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::<DESTINATIONBUCKET_NAME>/*"
+        }
+    ]
+}
 ```
